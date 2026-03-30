@@ -1,0 +1,98 @@
+import React from 'react';
+import { View, Text, Pressable, StyleSheet } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import Colors from '@/constants/colors';
+import { Expense } from '@/lib/types';
+import { getCategoryInfo, getPaymentMediumInfo } from '@/lib/categories';
+import { CategoryIcon } from './CategoryIcon';
+import { formatCurrency, formatTime } from '@/lib/format';
+
+interface Props {
+  expense: Expense;
+  onPress?: () => void;
+}
+
+export function ExpenseItem({ expense, onPress }: Props) {
+  const category = getCategoryInfo(expense.category);
+  const medium = getPaymentMediumInfo(expense.paymentMedium);
+
+  return (
+    <Pressable
+      style={({ pressed }) => [styles.container, pressed && styles.pressed]}
+      onPress={onPress}
+    >
+      <CategoryIcon category={category} size={44} />
+      <View style={styles.info}>
+        <Text style={styles.note} numberOfLines={1}>
+          {expense.note || category.label}
+        </Text>
+        <View style={styles.meta}>
+          <Text style={styles.metaText}>{medium.label}</Text>
+          {expense.cardInfo ? (
+            <>
+              <View style={styles.dot} />
+              <Text style={styles.metaText}>{expense.cardInfo}</Text>
+            </>
+          ) : null}
+        </View>
+      </View>
+      <View style={styles.right}>
+        <Text style={styles.amount}>-{formatCurrency(expense.amount)}</Text>
+        <Text style={styles.time}>{formatTime(expense.createdAt)}</Text>
+      </View>
+    </Pressable>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 14,
+    backgroundColor: Colors.light.card,
+    gap: 12,
+  },
+  pressed: {
+    backgroundColor: Colors.light.gray100,
+  },
+  info: {
+    flex: 1,
+    gap: 3,
+  },
+  note: {
+    fontSize: 15,
+    fontFamily: 'DMSans_500Medium',
+    color: Colors.light.text,
+  },
+  meta: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  metaText: {
+    fontSize: 12,
+    fontFamily: 'DMSans_400Regular',
+    color: Colors.light.textSecondary,
+  },
+  dot: {
+    width: 3,
+    height: 3,
+    borderRadius: 1.5,
+    backgroundColor: Colors.light.gray300,
+  },
+  right: {
+    alignItems: 'flex-end',
+    gap: 3,
+  },
+  amount: {
+    fontSize: 15,
+    fontFamily: 'DMSans_600SemiBold',
+    color: Colors.light.danger,
+  },
+  time: {
+    fontSize: 11,
+    fontFamily: 'DMSans_400Regular',
+    color: Colors.light.textMuted,
+  },
+});
